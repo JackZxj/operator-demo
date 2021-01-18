@@ -178,10 +178,10 @@ func createDeployment(name, operatortesterName, ns, hostname, coType, sourceFile
 	replicas := int32(1)
 	labels := labelsForOperatorTester(operatortesterName, name)
 	volumeName := name + "-volume"
-	image := "172.31.0.7:5000/source:v0.0.1"
+	image := "172.31.0.7:5000/source:v0.0.2"
 	containerPort := int32(8080)
 	if "127.0.0.1" != sourcePodIP {
-		image = "172.31.0.7:5000/destination:v0.0.1"
+		image = "172.31.0.7:5000/destination:v0.0.2"
 		containerPort = 8081
 	}
 	hostVolume, hostVolumeMount := volumeForOperatorTester(volumeName, sourceFile, destinationFile, sourcePodIP)

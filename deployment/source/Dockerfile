@@ -14,4 +14,12 @@ COPY --from=builder /workspace/source .
 # USER 65532:65532
 EXPOSE 8080
 
-ENTRYPOINT ["/source"]
+# 模式1，可以通过docker run -e更新环境变量，容器实际运行 /source
+# ENV SOURCE=/source
+# ENTRYPOINT ["/source"]
+
+# 模式2，无需在dockerfile中指定env，可以直接读取run -e的环境变量，容器实际运行 /bin/sh -c /source
+# ENTRYPOINT /source
+
+# 模式3，无需在dockerfile中指定env，可以直接读取run -e的环境变量，容器实际运行 /source
+CMD ["/source"]

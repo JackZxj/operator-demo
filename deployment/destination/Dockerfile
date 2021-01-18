@@ -14,4 +14,5 @@ COPY --from=builder /workspace/destination .
 # USER 65532:65532
 EXPOSE 8081
 
-ENTRYPOINT ["/destination"]
+# ENTRYPOINT ["/destination"]
+CMD ["/destination"]
