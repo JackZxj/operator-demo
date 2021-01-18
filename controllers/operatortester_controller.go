@@ -17,6 +17,7 @@ limitations under the License.
 package controllers
 
 import (
+	"path/filepath"
 	"strconv"
 	"strings"
 	"time"
@@ -178,7 +179,7 @@ func createDeployment(name, operatortesterName, ns, hostname, coType, sourceFile
 	replicas := int32(1)
 	labels := labelsForOperatorTester(operatortesterName, name)
 	volumeName := name + "-volume"
-	image := "172.31.0.7:5000/source:v0.0.2"
+	image := "172.31.0.7:5000/source:v0.0.3"
 	containerPort := int32(8080)
 	if "127.0.0.1" != sourcePodIP {
 		image = "172.31.0.7:5000/destination:v0.0.2"
@@ -250,13 +251,15 @@ func volumeForOperatorTester(volumeName, sourceFile, destinationFile, sourcePodI
 			MountPath: sourceFile,
 		}}
 	} else {
+		hostVolumeType = corev1.HostPathDirectoryOrCreate
+		dir := filepath.Dir(destinationFile)
 		hostVolume = corev1.HostPathVolumeSource{
-			Path: destinationFile,
+			Path: dir,
 			Type: &hostVolumeType,
 		}
 		hostVolumeMount = []corev1.VolumeMount{{
 			Name:      volumeName,
-			MountPath: destinationFile,
+			MountPath: dir,
 		}}
 	}
 	return []corev1.Volume{{

@@ -59,12 +59,22 @@ $ make undeploy
 ```
 
 ```BASH
+# 构建source和destination两端的镜像，并推送到仓库
+cd deployment/source
+docker build -t 172.31.0.7:5000/source:v0.0.3 .
+docker push 172.31.0.7:5000/source:v0.0.3
+cd ../destination
+docker build -t 172.31.0.7:5000/destination:v0.0.2 .
+docker push 172.31.0.7:5000/destination:v0.0.2
+
+
 # 构建镜像(如果没有写test,可以注释掉docker-build里的test项,直接build)
-make docker-build IMG=172.31.0.7:5000/operator-demo:v0.0.7
+make docker-build IMG=172.31.0.7:5000/operator-demo:v0.1.0
 # 推到镜像仓库
-make docker-push IMG=172.31.0.7:5000/operator-demo:v0.0.7
+make docker-push IMG=172.31.0.7:5000/operator-demo:v0.1.0
 # 安装部署(config/default/manager_auth_proxy_patch.yaml中的镜像可能拉不下来)
-make deploy IMG=172.31.0.7:5000/operator-demo:v0.0.7
+make deploy IMG=172.31.0.7:5000/operator-demo:v0.1.0
+kubectl get deploy -n operator-demo-system -o wide
 # 根据定义的type创建yaml,然后创建实例
 kubectl apply -f config/samples/demo_v1alpha1_operatortester.yaml
 # 查看

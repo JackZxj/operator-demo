@@ -11,6 +11,7 @@ import (
 	"os"
 	"path/filepath"
 	"strconv"
+	"time"
 )
 
 // info shows the target file
@@ -33,22 +34,34 @@ func main() {
 		log.Fatal("Can't get target env")
 	}
 	log.Println("I Got file path from operator:", info)
-	err := fileExists(info)
-	if err != nil {
-		log.Fatal("File may not exist! \n", err)
-	}
-	contents, err := ioutil.ReadFile(info)
-	if err != nil {
-		log.Fatal("Can't read the target file:", err)
-	}
-	targetMD5.MD5 = fmt.Sprintf("%x", md5.Sum(contents))
-	log.Println(filepath.Base(info), targetMD5.MD5)
+
+	go func() {
+		for {
+			err := fileExists(info)
+			if err != nil {
+				log.Fatal("File may not exist! \n", err)
+			}
+			contents, err := ioutil.ReadFile(info)
+			if err != nil {
+				log.Fatal("Can't read the target file:", err)
+			}
+			// targetMD5.MD5 = fmt.Sprintf("%x", md5.Sum(contents))
+			currentMD5 := fmt.Sprintf("%x", md5.Sum(contents))
+			if currentMD5 != targetMD5.MD5 {
+				log.Println("Source file has changed! Last MD5: ", targetMD5.MD5, "\tCurrent MD5:", currentMD5)
+				targetMD5.MD5 = currentMD5
+			} else {
+				log.Println("Great, the source file hasn't changed.")
+			}
+			time.Sleep(time.Second * 5)
+		}
+	}()
 
 	http.HandleFunc("/", indexHandler)
 	http.HandleFunc("/"+filepath.Base(info), fileHandler)
 	http.HandleFunc("/md5/"+filepath.Base(info), checkSumHander)
 
-	if err = http.ListenAndServe("0.0.0.0:8080", nil); err != nil {
+	if err := http.ListenAndServe("0.0.0.0:8080", nil); err != nil {
 		log.Fatal("Can't start server:", err)
 	}
 }
