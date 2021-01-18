@@ -1,0 +1,13 @@
+apiVersion: demo.jackzhang.io/v1alpha1
+kind: OperatorTester
+metadata:
+  name: operatortester-sample
+spec:
+  # Add fields here
+  coType: file
+  source:
+    hostname: centos78-0
+    filePath: /data/sourcefile
+  destinations:
+    - hostname: centos78-1
+      filePath: /data/targetfile

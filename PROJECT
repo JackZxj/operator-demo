@@ -2,6 +2,11 @@ domain: jackzhang.io
 layout: go.kubebuilder.io/v3
 projectName: operator-demo
 repo: github.com/JackZxj/operator-demo
+resources:
+- crdVersion: v1
+  group: demo
+  kind: OperatorTester
+  version: v1alpha1
 version: 3-alpha
 plugins:
   manifests.sdk.operatorframework.io/v2: {}
