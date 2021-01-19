@@ -165,6 +165,7 @@ func (r *OperatorTesterReconciler) checkDeployment(ctx context.Context, hostAndP
 			return nil, err
 		}
 		log.Info("Create a new Deployment", "Deployment.Namespace", deployment.Namespace, "Deployment.Name", deployment.Name)
+		found = deployment
 	} else if err != nil {
 		log.Error(err, "Failed to get Deployment")
 		return nil, err
@@ -273,6 +274,7 @@ func volumeForOperatorTester(volumeName, sourceFile, destinationFile, sourcePodI
 // getPodStatus returns the pod status of the array of pods passed in
 func getPodStatus(pods []corev1.Pod) map[string]string {
 	var podStatus map[string]string
+	podStatus = make(map[string]string)
 	for _, pod := range pods {
 		podStatus[pod.Name] = strconv.FormatBool(pod.Status.ContainerStatuses[0].Ready)
 	}
