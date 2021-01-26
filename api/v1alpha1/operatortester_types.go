@@ -35,6 +35,7 @@ type OperatorTesterSpec struct {
 	// Important: Run "make" to regenerate code after modifying this file
 
 	CoType       string        `json:"coType,omitempty"`
+	NatsServers  []string      `json:"natsServer,omitempty"`
 	Source       HostAndPath   `json:"source"`
 	Destinations []HostAndPath `json:"destinations"`
 }

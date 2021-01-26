@@ -5,9 +5,15 @@ metadata:
 spec:
   # Add fields here
   coType: file
+  natsServer:
+    - "nats://nats-0.nats.default.svc.cluster.local:4222"
+    - "nats://nats-1.nats.default.svc.cluster.local:4222"
+    - "nats://nats-2.nats.default.svc.cluster.local:4222"
   source:
     hostname: centos78-0
-    filePath: /data/sourcefile
+    filePath: /data/sourcefile-nats
   destinations:
     - hostname: centos78-1
-      filePath: /data/targetfile
+      filePath: /data/targetfile-nats
+    - hostname: centos78-0
+      filePath: /data/tmp/targetfile-nats

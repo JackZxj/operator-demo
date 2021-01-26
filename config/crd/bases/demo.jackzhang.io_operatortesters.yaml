@@ -51,6 +51,10 @@ spec:
                   - hostname
                   type: object
                 type: array
+              natsServer:
+                items:
+                  type: string
+                type: array
               source:
                 description: HostAndPath defines the hostname and filepath info
                 properties:

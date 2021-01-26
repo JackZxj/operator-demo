@@ -157,7 +157,8 @@ func (r *OperatorTesterReconciler) checkDeployment(ctx context.Context, hostAndP
 	err := r.Get(ctx, types.NamespacedName{Name: deploymentName, Namespace: operatortester.Namespace}, found)
 	if err != nil && errors.IsNotFound(err) {
 		// Define a new deployment
-		deployment := createDeployment(deploymentName, operatortester.Name, operatortester.Namespace, hostAndPath.Hostname, coType, sourceFile, destinationFile, sourcePodIP)
+		natsServs := strings.Join(operatortester.Spec.NatsServers, ",")
+		deployment := createDeployment(deploymentName, operatortester.Name, operatortester.Namespace, hostAndPath.Hostname, coType, natsServs, sourceFile, destinationFile, sourcePodIP)
 		ctrl.SetControllerReference(operatortester, deployment, r.Scheme)
 		err = r.Create(ctx, deployment)
 		if err != nil {
@@ -176,14 +177,14 @@ func (r *OperatorTesterReconciler) checkDeployment(ctx context.Context, hostAndP
 }
 
 // createDeployment for creating the target deployment
-func createDeployment(name, operatortesterName, ns, hostname, coType, sourceFile, destinationFile, sourcePodIP string) *appsv1.Deployment {
+func createDeployment(name, operatortesterName, ns, hostname, coType, natsServs, sourceFile, destinationFile, sourcePodIP string) *appsv1.Deployment {
 	replicas := int32(1)
 	labels := labelsForOperatorTester(operatortesterName, name)
 	volumeName := name + "-volume"
-	image := "172.31.0.7:5000/source:v0.0.3"
+	image := "172.31.0.7:5000/source-nats:v0.0.2"
 	containerPort := int32(8080)
 	if "127.0.0.1" != sourcePodIP {
-		image = "172.31.0.7:5000/destination:v0.0.2"
+		image = "172.31.0.7:5000/destination-nats:v0.0.2"
 		containerPort = 8081
 	}
 	hostVolume, hostVolumeMount := volumeForOperatorTester(volumeName, sourceFile, destinationFile, sourcePodIP)
@@ -208,7 +209,7 @@ func createDeployment(name, operatortesterName, ns, hostname, coType, sourceFile
 					Containers: []corev1.Container{{
 						Image: image,
 						Name:  name,
-						Env:   envsForOperatorTester(sourceFile, destinationFile, sourcePodIP),
+						Env:   envsForOperatorTester(natsServs, sourceFile, destinationFile, sourcePodIP),
 						Ports: []corev1.ContainerPort{{
 							ContainerPort: containerPort,
 							Name:          "http",
@@ -229,9 +230,10 @@ func labelsForOperatorTester(operatortesterName, name string) map[string]string 
 }
 
 // envsForOperatorTester returns env for conatiner
-func envsForOperatorTester(sourceFile, destinationFile, sourcePodIP string) []corev1.EnvVar {
+func envsForOperatorTester(natsServs, sourceFile, destinationFile, sourcePodIP string) []corev1.EnvVar {
 	var envs []corev1.EnvVar
 	envs = append(envs,
+		corev1.EnvVar{Name: "NATS_SERVERS", Value: natsServs},
 		corev1.EnvVar{Name: "SOURCE", Value: sourceFile},
 		corev1.EnvVar{Name: "DESTINATION", Value: destinationFile},
 		corev1.EnvVar{Name: "SOURCE_IP", Value: sourcePodIP + ":8080"})

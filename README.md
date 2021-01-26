@@ -68,13 +68,20 @@ cd ../destination
 docker build -t 172.31.0.7:5000/destination:v0.0.2 .
 docker push 172.31.0.7:5000/destination:v0.0.2
 
+# with nats
+cd deployment/nats/source
+docker build -t 172.31.0.7:5000/source-nats:v0.0.2 .
+docker push 172.31.0.7:5000/source-nats:v0.0.2
+cd ../destination
+docker build -t 172.31.0.7:5000/destination-nats:v0.0.2 .
+docker push 172.31.0.7:5000/destination-nats:v0.0.2
 
 # 构建镜像(如果没有写test,可以注释掉docker-build里的test项,直接build)
-make docker-build IMG=172.31.0.7:5000/operator-demo:v0.1.2
+make docker-build IMG=172.31.0.7:5000/operator-demo:v0.1.3
 # 推到镜像仓库
-make docker-push IMG=172.31.0.7:5000/operator-demo:v0.1.2
+make docker-push IMG=172.31.0.7:5000/operator-demo:v0.1.3
 # 安装部署(config/default/manager_auth_proxy_patch.yaml中的镜像可能拉不下来)
-make deploy IMG=172.31.0.7:5000/operator-demo:v0.1.2
+make deploy IMG=172.31.0.7:5000/operator-demo:v0.1.3
 kubectl get deploy -n operator-demo-system -o wide
 # 创建实例之前，需要先将source文件准备好，如果不存在文件会无法启动
 # 根据定义的type创建yaml,然后创建实例
